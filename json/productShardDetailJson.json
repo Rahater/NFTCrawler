@@ -1,0 +1,185 @@
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": {
+        "ownerUid": 381539,
+        "ownerNickName": "gR6UfJbVFhCrSaFjg1L3nYTSznFY7ad4z",
+        "ownerAccountAddress": "gR6UfJbVFhCrSaFjg1L3nYTSznFY7ad4z",
+        "shardId": "9309",
+        "shardTransferRecordList": [
+            {
+                "id": 813797,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 174772,
+                "fromUserName": "南戴河小虾米",
+                "toUid": 381539,
+                "toUserName": "gR6UfJbVFhCrSaFjg1L3nYTSznFY7ad4z",
+                "transferAmount": "945.00",
+                "transferMemo": "gR6...d4z从南戴河小虾米购买-945.00元",
+                "transferTime": "2022-05-26 15:30:32"
+            },
+            {
+                "id": 750542,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 319875,
+                "fromUserName": "cznb27Eo3ZzopA1ZYdVVB2YQSAws3ZtxG",
+                "toUid": 174772,
+                "toUserName": "南戴河小虾米",
+                "transferAmount": "619.99",
+                "transferMemo": "南戴河小虾米从czn...txG购买-619.99元",
+                "transferTime": "2022-05-22 22:43:02"
+            },
+            {
+                "id": 449696,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 241616,
+                "fromUserName": "njgLqobV3nbTr6gQgccs4TV4rS5HWTZZD",
+                "toUid": 319875,
+                "toUserName": "cznb27Eo3ZzopA1ZYdVVB2YQSAws3ZtxG",
+                "transferAmount": "1397.00",
+                "transferMemo": "czn...txG从njg...ZZD购买-1397.00元",
+                "transferTime": "2022-05-19 10:39:55"
+            },
+            {
+                "id": 422089,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 153719,
+                "fromUserName": "S6NmhdvMY2idsN9bqV7YPHS7hmzyt1dBg",
+                "toUid": 241616,
+                "toUserName": "njgLqobV3nbTr6gQgccs4TV4rS5HWTZZD",
+                "transferAmount": "1600.00",
+                "transferMemo": "njg...ZZD从S6N...dBg购买-1600.00元",
+                "transferTime": "2022-05-18 20:45:24"
+            },
+            {
+                "id": 378620,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 390021,
+                "fromUserName": "黑大头",
+                "toUid": 153719,
+                "toUserName": "S6NmhdvMY2idsN9bqV7YPHS7hmzyt1dBg",
+                "transferAmount": "1999.00",
+                "transferMemo": "S6N...dBg从黑大头购买-1999.00元",
+                "transferTime": "2022-05-16 15:00:27"
+            },
+            {
+                "id": 315949,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 316203,
+                "fromUserName": "砸价司马",
+                "toUid": 390021,
+                "toUserName": "nrpvaJdg376qva7Jts9dfuUpV67jjxbqK",
+                "transferAmount": "1199.00",
+                "transferMemo": "nrp...bqK从砸价司马购买-1199.00元",
+                "transferTime": "2022-05-13 03:08:20"
+            },
+            {
+                "id": 281939,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 167336,
+                "fromUserName": "cJrMPqxVjsfitRZoRHz1tVWKfVrC5DA7u",
+                "toUid": 316203,
+                "toUserName": "cc",
+                "transferAmount": "950.00",
+                "transferMemo": "cc从cJr...A7u购买-950.00元",
+                "transferTime": "2022-05-11 00:11:24"
+            },
+            {
+                "id": 253863,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 233164,
+                "fromUserName": "UrGya6nvbg3iKfNhhR46WciCQ3VASW7B7",
+                "toUid": 167336,
+                "toUserName": "cJrMPqxVjsfitRZoRHz1tVWKfVrC5DA7u",
+                "transferAmount": "650.00",
+                "transferMemo": "cJr...A7u从UrG...7B7购买-650.00元",
+                "transferTime": "2022-05-09 20:09:10"
+            },
+            {
+                "id": 227317,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 3,
+                "fromUid": 132242,
+                "fromUserName": "kDv4nJUHSjSvSH5LHbJaYdRRfuKTugdsK",
+                "toUid": 233164,
+                "toUserName": "UrGya6nvbg3iKfNhhR46WciCQ3VASW7B7",
+                "transferAmount": "36.00",
+                "transferMemo": "UrG...7B7从kDv...dsK购买-36.00元",
+                "transferTime": "2022-05-08 17:34:45"
+            },
+            {
+                "id": 138275,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 2,
+                "fromUid": 0,
+                "fromUserName": "",
+                "toUid": 132242,
+                "toUserName": "kDv4nJUHSjSvSH5LHbJaYdRRfuKTugdsK",
+                "transferAmount": "29.90",
+                "transferMemo": "kDv4nJUHSjSvSH5LHbJaYdRRfuKTugdsK 购买成功",
+                "transferTime": null
+            },
+            {
+                "id": 138274,
+                "productId": 51,
+                "shardId": 9309,
+                "transferStatus": 1,
+                "fromUid": 0,
+                "fromUserName": "",
+                "toUid": 0,
+                "toUserName": "",
+                "transferAmount": "29.90",
+                "transferMemo": "铸造发行",
+                "transferTime": "2022-04-11 18:31:45"
+            }
+        ],
+        "productId": 51,
+        "image": "https://img.42verse.shop/crmebimage/public/content/2022/04/11/a114a2e5224b4055908a3c63c7a6f3d2a0rt4nq3qs.jpg",
+        "storeName": "创世纪-DAY7",
+        "storeInfo": "创世纪-DAY7",
+        "labelInfo": [
+            "数字艺术"
+        ],
+        "price": "29.90",
+        "castQty": 10000,
+        "activeCount": 3078,
+        "stock": 0,
+        "chainInfo": {
+            "title": "创世纪-DAY7",
+            "assetId": "1473303200053860440",
+            "txId": "52d062686b3de4879b4425a55f2a66f2ed1b0b546ac229c3532903fb5f1ddc8c"
+        },
+        "description": "<p><img class=\"wscnph\" src=\"https://img.42verse.shop/crmebimage/public/content/2022/04/11/bc5b396724514f6e84099e7f25a4c8e89dkfme4cc8.jpg\" /></p>",
+        "creator": {
+            "id": 20,
+            "icon": "https://img.42verse.shop/crmebimage/public/operation/2022/04/02/033f1abb87954cf29ff31169d224465d3uuvxr0272.png",
+            "creatorName": "42-FutureLab",
+            "briefInfo": "“想要知道宇宙的答案，就创造一个宇宙”。42VERSE未来实验室，42V官方设计中心，用创意和技术创作更多抚慰人心、启迪未来的作品。"
+        },
+        "platformInfo": "数字商品为虚拟商品，仅限实名认证为21-65岁的中国大陆用户购买。本商品一经售出，不支持退换，请谨慎购买。平台发售的数字商品仅具备收藏欣赏价值，官方对商品价格不构成任何指导意义，严防炒作。",
+        "salesStatus": {
+            "id": 2,
+            "desc": "已售罄"
+        },
+        "blindBoxLevelIcon": "",
+        "blindBoxProductList": null
+    }
+}

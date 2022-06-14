@@ -1,0 +1,30 @@
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": {
+        "page": 1,
+        "limit": 17,
+        "totalPage": 1,
+        "total": 17,
+        "list": [
+            {
+                "id": 145,
+                "image": "https://img.42verse.shop/crmebimage/public/content/2022/06/01/f27dbdb3d6db4d92a97a947de59727df8dzigeoni3.gif",
+                "storeName": "神舟飞船",
+                "storeInfo": null,
+                "price": "99.00",
+                "creator": null,
+                "stock": null,
+                "flatPattern": null,
+                "salesStatus": {
+                    "id": 2,
+                    "desc": "已售罄"
+                },
+                "labels": [
+                    "数字盲盒"
+                ],
+                "castQty": 10000
+            }
+        ]
+    }
+}

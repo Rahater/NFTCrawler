@@ -1,0 +1,27 @@
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": {
+        "page": 1,
+        "limit": 20,
+        "totalPage": 9,
+        "total": 169,
+        "list": [
+            {
+                "hangingId": 1288371,
+                "hangingNo": "46465165422325794918554",
+                "shardId": 979,
+                "image": "https://img.42verse.shop/crmebimage/public/content/2022/05/29/10c85f4e646946fda0091fcc2cf10cd2mgsmbiqjhv.jpg",
+                "storeName": "东方持国天王",
+                "salePrice": "11798.00",
+                "productId": 130,
+                "saleStatus": 2,
+                "creatorName": "乔杉",
+                "chainAccountAddress": null,
+                "createTime": null,
+                "updateTime": null,
+                "blindBoxLevelIcon": ""
+            }
+        ]
+    }
+}

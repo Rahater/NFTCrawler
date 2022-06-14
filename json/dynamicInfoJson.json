@@ -1,0 +1,18 @@
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": {
+        "hangingType": 2,
+        "hangingNo": "73339165422458068481269",
+        "hangingDescribe": "寄售须知\n1.商品未出售前，用户可主动取消寄售；商品被下单后，无法取消寄售。\n2.您将获得除综合服务费（4.2%）之外的所有售卖收入。\n3.商品出售成功后，售卖收入将默认进入用户钱包余额，钱包所有功能由杉德支付公司提供服务。\n4.商品出售的增值收入部分，须请用户自行申报个人所得税。",
+        "platPercent": "4.20",
+        "copyrightPercent": "0.00",
+        "salePrice": "1567.00",
+        "hangingMinPrice": "10.01",
+        "hangingMaxPrice": "99999.99",
+        "buyPrice": "945.00",
+        "hangingDay": 0,
+        "saleStatus": 1,
+        "fixTime": null
+    }
+}
