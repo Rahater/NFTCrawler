@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import xlsxwriter
 
-from tools.SlidingValidationSolver import perfect_driver_get
+from tools.slidingValidationSolver import perfect_driver_get
 from tools.xlsxSaver import set_style_of_excel
 
 '''
@@ -76,7 +76,6 @@ class ProductSelenium:
         # 生成藏品url
         product_url = "https://api.42verse.shop/api/front/sale/hangingAndShardList?limit=20&selectType=1&page=1&productId=" + str(
             self.product_id)
-        # 判断该藏品暂无寄售
         # 模拟浏览
         perfect_driver_get(self.driver, product_url)
         # 解析页面数据
@@ -372,7 +371,7 @@ class ProductSelenium:
             worksheet.write(index + 1, 11, product_list[index]['castQty'])
         workbook.close()
 
-    # 第四步：爬取数据阶段
+    # 第四步：爬取数据阶段，带保存excel表的函数
     # 利用第一步的shardid去遍历所有寄售藏品，得到藏品寄售时间
     def get_product_sale_time(self):
         '''
@@ -460,6 +459,91 @@ class ProductSelenium:
         # self.save_product_sale_time_to_excel(self.product_list)
         self.save_product_sale_time_to_excel_with_style(self.product_list)
 
+    # 第四步：爬取数据阶段
+    # 利用第一步的shardid去遍历所有寄售藏品，得到藏品寄售时间
+    def get_product_sale_time_without_excel(self):
+        '''
+            第一步：直接调用接口https://api.42verse.shop/api/front/sale/list?productId=142进行访问，获取lastSalePrice（寄售价格）和lastId（寄售ID）
+            第二步：通过第一步获取的两个参数进行后续访问
+            第三步：利用shardId进行藏品数据一一匹配，更新self.product_list数据
+            第四步：保存数据
+        '''
+        base_url = "https://api.42verse.shop/api/front/sale/list?productId=" + str(self.product_id)
+        # 通过self.product_Totalpage数量控制访问次数
+        # 不足20个寄售藏品的情况
+        if self.product_totalPage == 1:
+            # 访问api并解析数据
+            perfect_driver_get(self.driver, base_url)
+            data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+            data_json = json.loads(data_str)
+            fourth_product_list = data_json['data']['list']
+        # 寄售藏品数量大于20个
+        elif self.product_totalPage > 1:
+            fourth_product_list = []
+            # 进行第一次访问以获取两个参数
+            # 访问api并解析数据
+            perfect_driver_get(self.driver, base_url)
+            data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+            data_json = json.loads(data_str)
+            fourth_product_list_first = data_json['data']['list']
+            lastSalePrice, lastId = fourth_product_list_first[19]['salePrice'], fourth_product_list_first[19][
+                'hangingId']
+            # 将fourth_product_list_first存入fourth_product_list
+            for item in fourth_product_list_first:
+                fourth_product_list.append(item)
+            for index in range(0, self.product_totalPage - 1):
+                # 寄售页面不是最后一个的情况
+                if index == self.product_totalPage - 2:
+                    # flag为True表示当前访问的链接是第一步的最后一个页面
+                    url = "https://api.42verse.shop/api/front/sale/list?productId={productId}&lastSalePrice={lastSalePrice}&lastId={lastId}".format(
+                        productId=self.product_id, lastSalePrice=lastSalePrice, lastId=lastId)
+                    # 访问api并解析数据
+                    perfect_driver_get(self.driver, url)
+                    data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+                    data_json = json.loads(data_str)
+                    fourth_product_list_second = data_json['data']['list']
+                    # 将fourth_product_list_second存入fourth_product_list
+                    for item in fourth_product_list_second:
+                        fourth_product_list.append(item)
+                # 寄售页面是最后一个的情况
+                else:
+                    # 获取数据并更新两个参数
+                    url = "https://api.42verse.shop/api/front/sale/list?productId={productId}&lastSalePrice={lastSalePrice}&lastId={lastId}".format(
+                        productId=str(self.product_id), lastSalePrice=str(lastSalePrice), lastId=str(lastId))
+                    # 访问api并解析数据
+                    perfect_driver_get(self.driver, url)
+                    data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+                    data_json = json.loads(data_str)
+                    fourth_product_list_second = data_json['data']['list']
+                    lastSalePrice, lastId = fourth_product_list_second[19]['salePrice'], fourth_product_list_second[19][
+                        'hangingId']
+                    # 将fourth_product_list_second存入fourth_product_list
+                    for item in fourth_product_list_second:
+                        fourth_product_list.append(item)
+                    # time.sleep(0.1)
+        # 对fourth_product_list按照价格进行升序排序，然后采用双指针方法进行一一匹配
+        fourth_product_list_sorted = sorted(fourth_product_list, key=lambda x: float(x.get("salePrice")))
+        for item2 in self.product_list:
+            item2['updateTime'] = "未获取"
+        for item1 in fourth_product_list_sorted:
+            for item2 in self.product_list:
+                if item1['shardId'] == item2['shardId']:
+                    item2['updateTime'] = item1['updateTime']
+                    break
+        self.driver.quit()
+        for item in self.product_list:
+            print(
+                "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；波动：\
+                {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
+                    format(product_total=self.product_total, index=self.product_list.index(item),
+                           storeName=item['storeName'],
+                           shardId=item['shardId'], salePrice=item['salePrice'], updateTime=item['updateTime'],
+                           buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
+                           ownerNickName=item['ownerNickName'],
+                           fromUserName=item['fromUserName'],
+                           transferTime=item['transferTime'], transferCount=item['transferCount'],
+                           activeCount=item['activeCount'], castQty=item['castQty']))
+
     # 暂不使用：第四步：不带样式的列表
     def save_product_sale_time_to_excel(self, product_list):
         col = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1', 'K1', 'L1']
@@ -489,7 +573,7 @@ class ProductSelenium:
         file_name = self.save_path + str(self.product_id) + '-' + str(self.product_name) + '-第四步.xlsx'
         set_style_of_excel(product_list, file_name)
 
-    # 数据爬取全过程
+    # 数据爬取全过程，输出excel表
     def complete_steps_of_get_product(self):
         flag = self.is_product_sale()
         if flag == False:
@@ -506,6 +590,26 @@ class ProductSelenium:
             # 第四步
             self.get_product_sale_time()
 
+    # 数据爬取全过程 不输出excel表
+    def complete_steps_of_get_product_without_excel(self):
+            flag = self.is_product_sale()
+            if flag == False:
+                print('该藏品寄售数量为0')
+            else:
+                # 第一步
+                self.get_product_shardid()
+                # time.sleep(1)
+                # 第二步
+                self.get_product_price()
+                # time.sleep(1)
+                # 第三步
+                self.get_product_details()
+                # 第四步
+                self.get_product_sale_time_without_excel()
+
+    # get方法 获取self.product_list
+    def get_self_product_list(self):
+        return self.product_list
 
 if __name__ == '__main__':
     # 计时：开始
