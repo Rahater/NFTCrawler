@@ -42,7 +42,7 @@ class XlsxSaver:
         self.df = df_in.copy()
         # 插入序列
         self.df.insert(0, '序号', range(1, 1 + len(self.df)))
-        self.columns.insert(0,'序号')
+        self.columns.insert(0, '序号')
         # 设置表头
         self.sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(self.df.columns))
         self.sheet.cell(1, 1).value = sheet_name
@@ -199,7 +199,7 @@ class XlsxSaver:
                                                               wrap_text=True)
             i = j + 1  # 继续指向下个单元格
 
-    def get_product_all_list(self,f_name):
+    def get_product_all_list(self, f_name):
         # <0的波动率设置为绿色,f_name 是波动率列名，必填参数
         self.set_color(f_name, self.Color_green, self.rule_down)
         # >0的波动率设置为红色，f_name 是波动率列名，必填参数
@@ -221,13 +221,26 @@ class XlsxSaver:
             return False
 
 
-def set_style_of_excel(product_list,file_name):
+def set_style_of_excel(product_list, file_name):
     df = pd.DataFrame(product_list)
-    # 定义列名
+    name_list = ['storeName', 'shardId', 'salePrice', 'updateTime', 'buyPrice', 'fluctuate', 'ownerNickName',
+                 'fromUserName', 'transferTime', 'transferCount', 'activeCount', 'castQty']
+    for item in df.columns:
+        if item not in name_list:
+            df.drop([item], axis=1)
+
+    # df.drop(['hangingId', 'hangingNo','image','productId','saleStatus','creatorName','chainAccountAddress','createTime','blindBoxLevelIcon',''], axis=1)
+    df.rename(
+        columns={'storeName': '藏品名称', 'shardId': '藏品编号', 'salePrice': '寄售价格', 'updateTime': '寄售时间', 'buyPrice': '购入价格',
+                 'fluctuate': '波动', 'ownerNickName': '持有者昵称', 'fromUserName': '卖家昵称', 'transferTime': '交易时间',
+                 'transferCount': '转手次数', 'activeCount': '流通量', 'castQty': '发行量'},
+        inplace=True)
+    # 定义列名顺序
     columns = ['藏品名称', '藏品编号', '寄售价格', '寄售时间', '购入价格', '波动', '持有者昵称',
-               '卖家昵称', '交易时间', '转手次数','流通量','发行量']
+               '卖家昵称', '交易时间', '转手次数', '流通量', '发行量']
+    df = df[columns]
+
     # 初始化一个对象, 设定保存后的文件名和表名
-    xlsx = XlsxSaver(columns,df, file_name, '藏品详情分析')
+    xlsx = XlsxSaver(columns, df, file_name, '藏品详情分析')
     # 传参：波动率的列名
     xlsx.get_product_all_list('波动')
-
