@@ -32,8 +32,8 @@ from tools.xlsxSaver import set_style_of_excel
 class ProductSelenium:
     def __init__(self, product_id):
         # 配置路径
-        self.driver_path = r"D:\Program Files\chromedriver\chromedriver.exe"
-        self.save_path = "G:/42verse/"
+        self.driver_path = r"D:\chromedriver\chromedriver.exe"
+        self.save_path = "d:/42v/"
         # 指定端口
         self.opt = webdriver.ChromeOptions()
         self.opt.add_experimental_option("debuggerAddress", "127.0.0.1:8100")
@@ -615,7 +615,7 @@ if __name__ == '__main__':
     # 计时：开始
     start = time.time()
     # 初始化，使用productId
-    productSelenium = ProductSelenium(144)
+    productSelenium = ProductSelenium(142)
     productSelenium.complete_steps_of_get_product()
     # 计时：结束
     end = time.time()
