@@ -13,8 +13,8 @@ from tools.slidingValidationSolver import perfect_driver_get
 class AllProduct:
     def __init__(self):
         # 配置路径
-        self.driver_path = r"D:\Program Files\chromedriver\chromedriver.exe"
-        self.save_path = "G:/42verse/"
+        self.driver_path = r"D:\chromedriver\chromedriver.exe"
+        self.save_path = "d:/42v/"
         # 指定端口
         self.opt = webdriver.ChromeOptions()
         self.opt.add_experimental_option("debuggerAddress", "127.0.0.1:8100")
