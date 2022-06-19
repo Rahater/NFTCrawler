@@ -4,6 +4,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import xlsxwriter
+import subprocess
 
 from tools.slidingValidationSolver import perfect_driver_get
 from tools.xlsxSaver import set_style_of_excel
@@ -36,6 +37,8 @@ class ProductSelenium:
         self.save_path = "G:/42verse/"
         # 指定端口
         self.opt = webdriver.ChromeOptions()
+        # command = 'chrome.exe --remote-debugging-port=8100 --user-data-dir="G:\\42verse\\selenium'
+        # subprocess.run(command)
         self.opt.add_experimental_option("debuggerAddress", "127.0.0.1:8100")
         self.driver = webdriver.Chrome(self.driver_path,
                                        options=self.opt)
@@ -123,11 +126,11 @@ class ProductSelenium:
         self.product_totalPage = data_json['data']['totalPage']
         self.product_name = first_product_list[0]['storeName']
         # 打印藏品数据
-        for item in first_product_list:
-            print("第一步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}".
-                  format(product_total=self.product_total, index=self.first_count, storeName=item['storeName'],
-                         salePrice=item['salePrice'], shardId=item['shardId']))
-            self.first_count += 1
+        # for item in first_product_list:
+        #     print("第一步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}".
+        #           format(product_total=self.product_total, index=self.first_count, storeName=item['storeName'],
+        #                  salePrice=item['salePrice'], shardId=item['shardId']))
+        #     self.first_count += 1
         # 保存藏品数据
         # self.first_save_product_shardid_to_txt(first_product_list)
         # 保存藏品数据至self.product_list
@@ -150,11 +153,11 @@ class ProductSelenium:
         data_json = json.loads(data_str)
         first_product_list = data_json['data']['list']
         # 打印藏品数据
-        for item in first_product_list:
-            print("第一步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}".
-                  format(product_total=self.product_total, index=self.first_count, storeName=item['storeName'],
-                         salePrice=item['salePrice'], shardId=item['shardId']))
-            self.first_count += 1
+        # for item in first_product_list:
+        #     print("第一步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}".
+        #           format(product_total=self.product_total, index=self.first_count, storeName=item['storeName'],
+        #                  salePrice=item['salePrice'], shardId=item['shardId']))
+        #     self.first_count += 1
         # 保存藏品数据
         # self.save_product_shardid_to_txt(first_product_list)
         # 保存藏品数据至self.product_list
@@ -245,12 +248,12 @@ class ProductSelenium:
             item['number'] = self.product_list.index(item) + 1
             product_price_list.append(item)
             # 打印藏品数据
-            print(
-                "第二步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}".
-                    format(product_total=self.product_total, index=self.second_count,
-                           storeName=item['storeName'],
-                           salePrice=item['salePrice'], shardId=item['shardId'], buyPrice=item['buyPrice']))
-            self.second_count += 1
+            # print(
+            #     "第二步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}".
+            #         format(product_total=self.product_total, index=self.second_count,
+            #                storeName=item['storeName'],
+            #                salePrice=item['salePrice'], shardId=item['shardId'], buyPrice=item['buyPrice']))
+            # self.second_count += 1
             # 第二步：最后一次循环关闭chromedriver进程
             # if product_list.index(item) == len(product_list) - 1:
             #     self.driver.quit()
@@ -329,18 +332,18 @@ class ProductSelenium:
             item['transferCount'] = transferCount
             item['activeCount'] = activeCount
             item['castQty'] = castQty
-            print(
-                "第三步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}；波动：\
-                {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
-                    format(product_total=self.product_total, index=self.third_count,
-                           storeName=item['storeName'],
-                           shardId=item['shardId'], salePrice=item['salePrice'],
-                           buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
-                           ownerNickName=item['ownerNickName'],
-                           fromUserName=item['fromUserName'],
-                           transferTime=item['transferTime'], transferCount=item['transferCount'],
-                           activeCount=item['activeCount'], castQty=item['castQty']))
-            self.third_count += 1
+            # print(
+            #     "第三步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}；波动：\
+            #     {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
+            #         format(product_total=self.product_total, index=self.third_count,
+            #                storeName=item['storeName'],
+            #                shardId=item['shardId'], salePrice=item['salePrice'],
+            #                buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
+            #                ownerNickName=item['ownerNickName'],
+            #                fromUserName=item['fromUserName'],
+            #                transferTime=item['transferTime'], transferCount=item['transferCount'],
+            #                activeCount=item['activeCount'], castQty=item['castQty']))
+            # self.third_count += 1
             # if self.product_list.index(item) == len(self.product_list) - 1:
             #     self.driver.quit()
             # time.sleep(0.1)
@@ -443,18 +446,18 @@ class ProductSelenium:
                     item2['updateTime'] = item1['updateTime']
                     break
         self.driver.quit()
-        for item in self.product_list:
-            print(
-                "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；波动：\
-                {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
-                    format(product_total=self.product_total, index=self.product_list.index(item),
-                           storeName=item['storeName'],
-                           shardId=item['shardId'], salePrice=item['salePrice'], updateTime=item['updateTime'],
-                           buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
-                           ownerNickName=item['ownerNickName'],
-                           fromUserName=item['fromUserName'],
-                           transferTime=item['transferTime'], transferCount=item['transferCount'],
-                           activeCount=item['activeCount'], castQty=item['castQty']))
+        # for item in self.product_list:
+        #     print(
+        #         "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；波动：\
+        #         {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
+        #             format(product_total=self.product_total, index=self.product_list.index(item),
+        #                    storeName=item['storeName'],
+        #                    shardId=item['shardId'], salePrice=item['salePrice'], updateTime=item['updateTime'],
+        #                    buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
+        #                    ownerNickName=item['ownerNickName'],
+        #                    fromUserName=item['fromUserName'],
+        #                    transferTime=item['transferTime'], transferCount=item['transferCount'],
+        #                    activeCount=item['activeCount'], castQty=item['castQty']))
         # 第四步：存储数据
         # self.save_product_sale_time_to_excel(self.product_list)
         self.save_product_sale_time_to_excel_with_style(self.product_list)
@@ -581,6 +584,25 @@ class ProductSelenium:
         else:
             # 第一步
             self.get_product_shardid()
+            print(self.product_name, ':第1步完成')
+            # 第二步
+            self.get_product_price()
+            print(self.product_name, ':第2步完成')
+            # 第三步
+            self.get_product_details()
+            print(self.product_name, ':第3步完成')
+            # 第四步
+            self.get_product_sale_time()
+            print(self.product_name, ':第4步完成')
+
+    # 数据爬取全过程 不输出excel表
+    def complete_steps_of_get_product_without_excel(self):
+        flag = self.is_product_sale()
+        if flag == False:
+            print('该藏品寄售数量为0')
+        else:
+            # 第一步
+            self.get_product_shardid()
             # time.sleep(1)
             # 第二步
             self.get_product_price()
@@ -588,36 +610,20 @@ class ProductSelenium:
             # 第三步
             self.get_product_details()
             # 第四步
-            self.get_product_sale_time()
-
-    # 数据爬取全过程 不输出excel表
-    def complete_steps_of_get_product_without_excel(self):
-            flag = self.is_product_sale()
-            if flag == False:
-                print('该藏品寄售数量为0')
-            else:
-                # 第一步
-                self.get_product_shardid()
-                # time.sleep(1)
-                # 第二步
-                self.get_product_price()
-                # time.sleep(1)
-                # 第三步
-                self.get_product_details()
-                # 第四步
-                self.get_product_sale_time_without_excel()
+            self.get_product_sale_time_without_excel()
 
     # get方法 获取self.product_list
     def get_self_product_list(self):
         return self.product_list
 
+
 if __name__ == '__main__':
     # 计时：开始
     start = time.time()
     # 初始化，使用productId
-    productSelenium = ProductSelenium(144)
+    productSelenium = ProductSelenium(143)
     productSelenium.complete_steps_of_get_product()
     # 计时：结束
     end = time.time()
-
     print(end - start)
+

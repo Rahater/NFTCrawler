@@ -37,6 +37,7 @@ def perfect_driver_get(driver, product_url):
                 driver.switch_to.window(new_handle)
         # 滑动滑块
         # 找到滑块初始位置
+        time.sleep(3)
         draggier = driver.find_element_by_id('nc_1_n1z')
         action_chains = ActionChains(driver)
         action_chains.click_and_hold(draggier).perform()

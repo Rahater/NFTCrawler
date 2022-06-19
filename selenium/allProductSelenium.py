@@ -14,10 +14,11 @@ class AllProductSelenium:
         all_product.get_all_product_id_and_name()
         id_name_list = all_product.get_product_list()
         for product in id_name_list:
-            id = int(product['productId'])
-            product_selenium = productSelenium.ProductSelenium(id)
-            product_selenium.complete_steps_of_get_product()
-            print(id, "结束")
+            if id_name_list.index(product)+1 > 6:
+                id = int(product['productId'])
+                product_selenium = productSelenium.ProductSelenium(id)
+                product_selenium.complete_steps_of_get_product()
+                print(product_selenium.product_name, "：爬取结束")
 
 
 if __name__ == '__main__':
