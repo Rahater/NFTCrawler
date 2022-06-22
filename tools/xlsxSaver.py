@@ -56,6 +56,7 @@ class XlsxSaver:
         for row in range(0, len(list(self.df.index))):
             for col in range(0, len(list(self.df.columns))):
                 self.sheet.cell(row + 3, col + 1).value = self.df.iloc[row, col]  # 注意：sheet行列从1开始计数
+                self.sheet.cell(row + 3, col + 1).alignment = Alignment(horizontal='center', vertical='center')  # 居中
 
     def remove_file(self):
         remove(self.filename)
@@ -221,26 +222,28 @@ class XlsxSaver:
             return False
 
 
-def set_style_of_excel(product_list, file_name):
+def set_style_of_excel(product_list, file_name, product_name):
     df = pd.DataFrame(product_list)
-    name_list = ['storeName', 'shardId', 'salePrice', 'updateTime', 'buyPrice', 'fluctuate', 'ownerNickName',
-                 'fromUserName', 'transferTime', 'transferCount', 'activeCount', 'castQty']
+    name_list = ['storeName', 'shardId', 'buyPrice', 'salePrice', 'transferTime', 'updateTime', 'fluctuate',
+                 'transferCount', 'ownerNickName',
+                 'fromUserName', 'activeCount', 'castQty']
     for item in df.columns:
         if item not in name_list:
             df.drop([item], axis=1)
 
-    # df.drop(['hangingId', 'hangingNo','image','productId','saleStatus','creatorName','chainAccountAddress','createTime','blindBoxLevelIcon',''], axis=1)
+    # df.drop(['hangingId', 'hangingNo','image','productId','saleStatus','creatorName','chainAccountAddress',
+    # 'createTime','blindBoxLevelIcon',''], axis=1)
     df.rename(
         columns={'storeName': '藏品名称', 'shardId': '藏品编号', 'salePrice': '寄售价格', 'updateTime': '寄售时间', 'buyPrice': '购入价格',
-                 'fluctuate': '波动', 'ownerNickName': '持有者昵称', 'fromUserName': '卖家昵称', 'transferTime': '交易时间',
+                 'fluctuate': '涨幅', 'ownerNickName': '持有者昵称', 'fromUserName': '卖家昵称', 'transferTime': '购入时间',
                  'transferCount': '转手次数', 'activeCount': '流通量', 'castQty': '发行量'},
         inplace=True)
     # 定义列名顺序
-    columns = ['藏品名称', '藏品编号', '寄售价格', '寄售时间', '购入价格', '波动', '持有者昵称',
-               '卖家昵称', '交易时间', '转手次数', '流通量', '发行量']
+    columns = ['藏品名称', '藏品编号', '购入价格', '寄售价格', '购入时间', '寄售时间', '涨幅', '转手次数', '持有者昵称',
+               '卖家昵称', '流通量', '发行量']
     df = df[columns]
 
     # 初始化一个对象, 设定保存后的文件名和表名
-    xlsx = XlsxSaver(columns, df, file_name, '藏品详情分析')
+    xlsx = XlsxSaver(columns, df, file_name, product_name + '-数据分析')
     # 传参：波动率的列名
-    xlsx.get_product_all_list('波动')
+    xlsx.get_product_all_list('涨幅')

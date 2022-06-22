@@ -1,21 +1,22 @@
 import pymysql
 
 
-def createDBAndTable(user='root', passwd='root'):
+def createDBAndTable(user='root', passwd='123456'):
     # 建库和建表
     con = pymysql.connect(host='127.0.0.1', port=3306, user=user, passwd=passwd, charset='utf8')
     cur = con.cursor()
-    # 开始建库,库名:nft
-    cur.execute("create database nft character set utf8;")
-    # 使用nft库
-    cur.execute("use nft;")
-    # 建基础信息表
+    # 开始建库,库名:42verse
+    cur.execute("create database 42verse character set utf8;")
+    # 使用42verse
+    cur.execute("use 42verse;")
+    # 创建平台所有藏品的基础信息表product_basic(id, creatorId, creatorName, ProductId, ProductName)
     cur.execute(
-        "CREATE TABLE product_basic (id INT AUTO_INCREMENT PRIMARY KEY, productId VARCHAR(255), storeName VARCHAR(255))")
-    print('' )
-    # 建藏品详情表
+        "CREATE TABLE product_basic (id INT AUTO_INCREMENT PRIMARY KEY,"
+        " creatorId VARCHAR(255),creatorName VARCHAR(255),ProductId VARCHAR(255),ProductName VARCHAR(255))")
+    # 创建平台所有藏品的当日前20个寄售藏品的详情表today_product_detail (id, productId, shardId, salePrice, updateTime,buyPrice,
+    # fluctuate, ownerNickName, fromUserName, transferTime, transferCount, activeCount, castQty)
     cur.execute(
-        "CREATE TABLE product_detail (id INT AUTO_INCREMENT PRIMARY KEY, productId VARCHAR(255), shardId VARCHAR(255)"
+        "CREATE TABLE today_product_detail (id INT AUTO_INCREMENT PRIMARY KEY, productId VARCHAR(255), shardId VARCHAR(255)"
         ", salePrice VARCHAR(255), buyPrice VARCHAR(255), ownerNickName VARCHAR(255), fromUserName VARCHAR(255)"
         ", transferTime VARCHAR(255), updateTime VARCHAR(255), transferCount VARCHAR(255)"
         ", castQty VARCHAR(255),chainAccountAddress VARCHAR(255))")
@@ -244,6 +245,6 @@ def delete_detail(productId, shardId):
         # 关闭数据库连接
         db.close()
 
+
 if __name__ == '__main__':
     createDBAndTable()
-

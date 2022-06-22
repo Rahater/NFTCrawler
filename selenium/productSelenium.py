@@ -1,23 +1,18 @@
 # coding=utf-8
 import json
 import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 import xlsxwriter
-import subprocess
-
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 from tools.slidingValidationSolver import perfect_driver_get
 from tools.xlsxSaver import set_style_of_excel
 
 '''
     介绍
-        实现对单一藏品的数据监控，生成Excel表格，表格包含一下数据：序号 藏品名称 藏品编号 寄售价格 寄售时间 购入价格 波动 持有者昵称 卖家昵称 交易时间 转手次数 流通量 发行量
+        实现对单一藏品的数据监控，生成Excel表格，表格包含一下数据：序号 藏品名称 藏品编号 寄售价格 寄售时间 购入价格 涨幅 持有者昵称 卖家昵称 购入时间 转手次数 流通量 发行量
     使用流程
-     1. 打开cmd 打开指定端口、文件夹的独立浏览器
-     示例：
-        chrome.exe --remote-debugging-port=8100 --user-data-dir="G:\\42verse\\selenium"
-     2. 遇到滑动验证使用ctrl+R刷新页面1次，滑动滑块即可破解阿里人机检测库(暂时不考虑保存cookie以进行脚本访问)
-
+        设置谷歌浏览器的环境变量-设置目标浏览器的重定向
     相关接口
      1. 最新上架链接：https://api.42verse.shop/api/front/sale/list?creatorId=35&productId=142&saleType=0 可获取寄售时间
      2. 价格升序链接：https://api.42verse.shop/api/front/sale/hangingAndShardList?selectType=1&productId=142 可获取寄售总数
@@ -32,15 +27,16 @@ from tools.xlsxSaver import set_style_of_excel
 class ProductSelenium:
     def __init__(self, product_id):
         # 配置路径
-        self.driver_path = r"D:\Program Files\chromedriver\chromedriver.exe"
-        self.save_path = "G:/42verse/"
-        # 指定端口
+        self.driver_path = r"C:\Program Files\Google\Chrome\Application\chromedriver.exe"
+        self.save_path = r"C:/42verse/"
+        # 设置option 防识别自动化
         self.opt = webdriver.ChromeOptions()
-        command = 'chrome.exe --remote-debugging-port=8100 --user-data-dir=\"G:\\42verse\\selenium\"'
-        subprocess.Popen(command)
-        self.opt.add_experimental_option("debuggerAddress", "127.0.0.1:8100")
-        self.driver = webdriver.Chrome(self.driver_path,
-                                       options=self.opt)
+        self.opt.add_argument("--disable-blink-features=AutomationControlled")
+        self.opt.add_experimental_option('useAutomationExtension', False)
+        self.opt.add_experimental_option("excludeSwitches", ['enable-automation'])
+        # 版本更新 需采用Service模块
+        service = Service(self.driver_path)
+        self.driver = webdriver.Chrome(service=service, options=self.opt)
         # 藏品ID
         self.product_id = product_id
         # 藏品名称
@@ -51,24 +47,18 @@ class ProductSelenium:
         self.product_totalPage = 0
         # 寄售藏品的列表
         self.product_list = []
-        # 三次访问api的计数器
-        self.first_count = 1
-        self.second_count = 1
-        self.third_count = 1
         # 第一步在>=20个及藏品的情况下获取的寄售价格和购买价格
         self.sale_price = -1
         self.shard_id = -1
 
-    # 第0步：用于判断藏品是否存在寄售
+    # 第零步：用于判断藏品是否存在寄售
     def is_product_sale(self):
-
         # 最大化窗口
         try:
             self.driver.maximize_window()
-        except:
-            print("第一步第一次访问：最大化窗口失败，无影响")
+        finally:
             pass
-        # 注入js代码反爬
+        # 注入js代码
         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             "source": """
                     Object.defineProperty(navigator, 'webdriver', {
@@ -95,10 +85,9 @@ class ProductSelenium:
         # 最大化窗口
         try:
             self.driver.maximize_window()
-        except:
-            print("第一步第一次访问：最大化窗口失败，无影响")
+        finally:
             pass
-        # 注入js代码反爬
+        # 注入js代码
         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             "source": """
             Object.defineProperty(navigator, 'webdriver', {
@@ -109,7 +98,6 @@ class ProductSelenium:
         # 生成藏品url
         product_url = "https://api.42verse.shop/api/front/sale/hangingAndShardList?limit=20&selectType=1&page=1&productId=" + str(
             self.product_id)
-        # 判断该藏品暂无寄售
         # 模拟浏览
         perfect_driver_get(self.driver, product_url)
         # 解析页面数据
@@ -128,9 +116,8 @@ class ProductSelenium:
         # 打印藏品数据
         # for item in first_product_list:
         #     print("第一步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}".
-        #           format(product_total=self.product_total, index=self.first_count, storeName=item['storeName'],
+        #           format(product_total=self.product_total, index=first_product_list.index(item), storeName=item['storeName'],
         #                  salePrice=item['salePrice'], shardId=item['shardId']))
-        #     self.first_count += 1
         # 保存藏品数据
         # self.first_save_product_shardid_to_txt(first_product_list)
         # 保存藏品数据至self.product_list
@@ -155,9 +142,9 @@ class ProductSelenium:
         # 打印藏品数据
         # for item in first_product_list:
         #     print("第一步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}".
-        #           format(product_total=self.product_total, index=self.first_count, storeName=item['storeName'],
+        #           format(product_total=self.product_total, index=first_product_list.index(item),
+        #                  storeName=item['storeName'],
         #                  salePrice=item['salePrice'], shardId=item['shardId']))
-        #     self.first_count += 1
         # 保存藏品数据
         # self.save_product_shardid_to_txt(first_product_list)
         # 保存藏品数据至self.product_list
@@ -186,8 +173,6 @@ class ProductSelenium:
                 else:
                     flag = False
                     self.get_product_shardid_second_child(self.sale_price, self.shard_id, flag)
-                    # 睡眠0.2s
-                    # time.sleep(0.1)
         print(len(self.product_list))
 
     # 已取消使用：第一步：存储数据阶段：覆盖模式
@@ -226,8 +211,6 @@ class ProductSelenium:
     # 第二步：爬取数据阶段
     # 获取所有寄售藏品的salePrice和buyPrice
     def get_product_price(self):
-        # 获取第一步得到的数据
-        # second_product_list = self.product_list.copy()
         # 带寄售价格和购买价格的藏品列表
         product_price_list = []
         for item in self.product_list:
@@ -250,15 +233,12 @@ class ProductSelenium:
             # 打印藏品数据
             # print(
             #     "第二步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}".
-            #         format(product_total=self.product_total, index=self.second_count,
+            #         format(product_total=self.product_total, index=self.product_list.index(item),
             #                storeName=item['storeName'],
             #                salePrice=item['salePrice'], shardId=item['shardId'], buyPrice=item['buyPrice']))
-            # self.second_count += 1
             # 第二步：最后一次循环关闭chromedriver进程
             # if product_list.index(item) == len(product_list) - 1:
             #     self.driver.quit()
-            # 睡眠0.2s
-            # time.sleep(0.1)
         # 存储第二步的数据
         # self.save_product_price_to_txt(product_price_list)
 
@@ -292,28 +272,28 @@ class ProductSelenium:
             # 获取作品编号
             shardId = item['shardId']
             # 生成寄售作品api链接
-            product_url = "https://api.42verse.shop/api/front/product/shard/detail?shardId={shardId}&productId={productId}".format(
+            product_url = "https://api.42verse.shop/api/front/product/shard/detail?shardId={shardId}&productId={" \
+                          "productId}".format(
                 productId=self.product_id, shardId=shardId)
-            # 访问api并解析数据
             perfect_driver_get(self.driver, product_url)
+            # 解析数据
             data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
             data_json = json.loads(data_str)
-            # 获取所有数据
             # 持有者昵称
             ownerNickName = data_json['data']['ownerNickName']
             # 一次都没有交易过的藏品此项默认长度为2
             if len(data_json['data']['shardTransferRecordList']) != 2:
-                # 上次交易时间
+                # 上次购入时间
                 transferTime = data_json['data']['shardTransferRecordList'][0]['transferTime']
                 # 上个卖家ID
                 fromUserName = data_json['data']['shardTransferRecordList'][0]['fromUserName']
                 # 转手次数
                 transferCount = len(data_json['data']['shardTransferRecordList']) - 1
             else:
-                # 上次交易时间
+                # 上次购入时间
                 transferTime = data_json['data']['shardTransferRecordList'][1]['transferTime']
                 # 上个卖家ID
-                fromUserName = '铸造发行'
+                fromUserName = '42Verse官方'
                 # 转手次数
                 transferCount = 0
             # 发行量和流通量
@@ -323,9 +303,9 @@ class ProductSelenium:
             item['storeName'] = self.product_name
             # 在第三步运行阶段撤销寄售
             if item['salePrice'] is None:
-                item['fluctuate'] = "暂未获取"
+                item['fluctuate'] = "数据丢失（已撤销寄售）"
             else:
-                item['fluctuate'] = float(item['salePrice']) - float(item['buyPrice']) / float(item['buyPrice'])
+                item['fluctuate'] = (float(item['salePrice']) - float(item['buyPrice'])) / float(item['buyPrice'])
             item['ownerNickName'] = ownerNickName
             item['fromUserName'] = fromUserName
             item['transferTime'] = transferTime
@@ -333,9 +313,9 @@ class ProductSelenium:
             item['activeCount'] = activeCount
             item['castQty'] = castQty
             # print(
-            #     "第三步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}；波动：\
-            #     {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
-            #         format(product_total=self.product_total, index=self.third_count,
+            #     "第三步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；购入价格：{buyPrice}；涨幅：\
+            #     {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；购入时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
+            #         format(product_total=self.product_total, index=self.product_list.index(item),
             #                storeName=item['storeName'],
             #                shardId=item['shardId'], salePrice=item['salePrice'],
             #                buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
@@ -346,7 +326,6 @@ class ProductSelenium:
             # self.third_count += 1
             # if self.product_list.index(item) == len(self.product_list) - 1:
             #     self.driver.quit()
-            # time.sleep(0.1)
         # 第三步：存储数据
         # self.save_product_details_to_csv(self.product_list)
 
@@ -354,7 +333,7 @@ class ProductSelenium:
     # 以xlsx格式保存含有价格的寄售藏品数据
     def save_product_details_to_csv(self, product_list):
         col = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1', 'K1']
-        title = ["序号", "藏品名称", "藏品编号", "寄售价格", "购入价格", "波动", "持有者昵称", "卖家昵称", "交易时间", "转手次数", "流通量", "发行量"]
+        title = ["序号", "藏品名称", "藏品编号", "寄售价格", "购入价格", "涨幅", "持有者昵称", "卖家昵称", "购入时间", "转手次数", "流通量", "发行量"]
         workbook = xlsxwriter.Workbook(
             self.save_path + str(self.product_id) + '-' + str(self.product_name) + '-第三步.xlsx')  # 建立文件
         worksheet = workbook.add_worksheet()
@@ -439,7 +418,7 @@ class ProductSelenium:
         # 对fourth_product_list按照价格进行升序排序，然后采用双指针方法进行一一匹配
         fourth_product_list_sorted = sorted(fourth_product_list, key=lambda x: float(x.get("salePrice")))
         for item2 in self.product_list:
-            item2['updateTime'] = "未获取"
+            item2['updateTime'] = "数据丢失（已取消寄售）"
         for item1 in fourth_product_list_sorted:
             for item2 in self.product_list:
                 if item1['shardId'] == item2['shardId']:
@@ -448,8 +427,8 @@ class ProductSelenium:
         self.driver.quit()
         # for item in self.product_list:
         #     print(
-        #         "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；波动：\
-        #         {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
+        #         "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；涨幅：\
+        #         {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；购入时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
         #             format(product_total=self.product_total, index=self.product_list.index(item),
         #                    storeName=item['storeName'],
         #                    shardId=item['shardId'], salePrice=item['salePrice'], updateTime=item['updateTime'],
@@ -459,7 +438,6 @@ class ProductSelenium:
         #                    transferTime=item['transferTime'], transferCount=item['transferCount'],
         #                    activeCount=item['activeCount'], castQty=item['castQty']))
         # 第四步：存储数据
-        # self.save_product_sale_time_to_excel(self.product_list)
         self.save_product_sale_time_to_excel_with_style(self.product_list)
 
     # 第四步：爬取数据阶段
@@ -533,24 +511,25 @@ class ProductSelenium:
                 if item1['shardId'] == item2['shardId']:
                     item2['updateTime'] = item1['updateTime']
                     break
-        self.driver.close()
-        for item in self.product_list:
-            print(
-                "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；波动：\
-                {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；交易时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
-                    format(product_total=self.product_total, index=self.product_list.index(item),
-                           storeName=item['storeName'],
-                           shardId=item['shardId'], salePrice=item['salePrice'], updateTime=item['updateTime'],
-                           buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
-                           ownerNickName=item['ownerNickName'],
-                           fromUserName=item['fromUserName'],
-                           transferTime=item['transferTime'], transferCount=item['transferCount'],
-                           activeCount=item['activeCount'], castQty=item['castQty']))
+        # 关闭chromedriver
+        self.driver.quit()
+        # for item in self.product_list:
+        #     print(
+        #         "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；涨幅：\
+        #         {fluctuate}；持有者昵称：{ownerNickName}；卖家昵称：{fromUserName}；购入时间：{transferTime}；转手次数:{transferCount}；流通量：{activeCount}；发行量：{castQty}；".
+        #         format(product_total=self.product_total, index=self.product_list.index(item),
+        #                storeName=item['storeName'],
+        #                shardId=item['shardId'], salePrice=item['salePrice'], updateTime=item['updateTime'],
+        #                buyPrice=item['buyPrice'], fluctuate=item['fluctuate'],
+        #                ownerNickName=item['ownerNickName'],
+        #                fromUserName=item['fromUserName'],
+        #                transferTime=item['transferTime'], transferCount=item['transferCount'],
+        #                activeCount=item['activeCount'], castQty=item['castQty']))
 
     # 暂不使用：第四步：不带样式的列表
     def save_product_sale_time_to_excel(self, product_list):
         col = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1', 'K1', 'L1']
-        title = ["序号", "藏品名称", "藏品编号", "寄售价格", "寄售时间", "购入价格", "波动", "持有者昵称", "卖家昵称", "交易时间", "转手次数", "流通量", "发行量"]
+        title = ["序号", "藏品名称", "藏品编号", "寄售价格", "寄售时间", "购入价格", "涨幅", "持有者昵称", "卖家昵称", "购入时间", "转手次数", "流通量", "发行量"]
         workbook = xlsxwriter.Workbook(
             self.save_path + str(self.product_id) + '-' + str(self.product_name) + '-第四步.xlsx')  # 建立文件
         worksheet = workbook.add_worksheet()
@@ -573,8 +552,8 @@ class ProductSelenium:
 
     # 第四步：带样式的列表
     def save_product_sale_time_to_excel_with_style(self, product_list):
-        file_name = self.save_path + str(self.product_id) + '-' + str(self.product_name) + '-第四步.xlsx'
-        set_style_of_excel(product_list, file_name)
+        file_name = self.save_path + str(self.product_id) + '-' + str(self.product_name) + '.xlsx'
+        set_style_of_excel(product_list, file_name, self.product_name)
 
     # 数据爬取全过程，输出excel表
     def complete_steps_of_get_product(self):
@@ -595,23 +574,6 @@ class ProductSelenium:
             self.get_product_sale_time()
             print(self.product_name, ':第4步完成')
 
-    # 数据爬取全过程 不输出excel表
-    def complete_steps_of_get_product_without_excel(self):
-        flag = self.is_product_sale()
-        if flag == False:
-            print('该藏品寄售数量为0')
-        else:
-            # 第一步
-            self.get_product_shardid()
-            # time.sleep(1)
-            # 第二步
-            self.get_product_price()
-            # time.sleep(1)
-            # 第三步
-            self.get_product_details()
-            # 第四步
-            self.get_product_sale_time_without_excel()
-
     # get方法 获取self.product_list
     def get_self_product_list(self):
         return self.product_list
@@ -620,12 +582,9 @@ class ProductSelenium:
 if __name__ == '__main__':
     # 计时：开始
     start = time.time()
-    # 初始化，使用productId
-    # 祈雨舞-157 Day1-44 不信谣-106 双子座-98
-    # 看一下黄的寄售时间 比较黄和绿
-    productSelenium = ProductSelenium(71)
+    # 祈雨舞-157 Day1-44 不信谣-106 少女绿-71 少女蓝-86
+    productSelenium = ProductSelenium(168)
     productSelenium.complete_steps_of_get_product()
     # 计时：结束
     end = time.time()
     print(end - start)
-
