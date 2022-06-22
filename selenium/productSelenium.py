@@ -15,8 +15,7 @@ from tools.xlsxSaver import set_style_of_excel
     使用流程
      1. 打开cmd 打开指定端口、文件夹的独立浏览器
      示例：
-        chrome.exe --remote-debugging-port=8100 --user-data-dir="G:\42verse\selenium1
-        chrome.exe --remote-debugging-port=8100 --user-data-dir="G:\42verse\selenium4
+        chrome.exe --remote-debugging-port=8100 --user-data-dir="G:\\42verse\\selenium"
      2. 遇到滑动验证使用ctrl+R刷新页面1次，滑动滑块即可破解阿里人机检测库(暂时不考虑保存cookie以进行脚本访问)
 
     相关接口
@@ -37,8 +36,8 @@ class ProductSelenium:
         self.save_path = "G:/42verse/"
         # 指定端口
         self.opt = webdriver.ChromeOptions()
-        # command = 'chrome.exe --remote-debugging-port=8100 --user-data-dir="G:\\42verse\\selenium'
-        # subprocess.run(command)
+        command = 'chrome.exe --remote-debugging-port=8100 --user-data-dir=\"G:\\42verse\\selenium\"'
+        subprocess.Popen(command)
         self.opt.add_experimental_option("debuggerAddress", "127.0.0.1:8100")
         self.driver = webdriver.Chrome(self.driver_path,
                                        options=self.opt)
@@ -62,6 +61,7 @@ class ProductSelenium:
 
     # 第0步：用于判断藏品是否存在寄售
     def is_product_sale(self):
+
         # 最大化窗口
         try:
             self.driver.maximize_window()
@@ -533,7 +533,7 @@ class ProductSelenium:
                 if item1['shardId'] == item2['shardId']:
                     item2['updateTime'] = item1['updateTime']
                     break
-        self.driver.quit()
+        self.driver.close()
         for item in self.product_list:
             print(
                 "第四步：寄售总数：{product_total}；寄售序号：{index}；寄售名称：{storeName}；寄售编号：{shardId};寄售价格：{salePrice}；寄售时间：{updateTime}；购入价格：{buyPrice}；波动：\
@@ -621,7 +621,9 @@ if __name__ == '__main__':
     # 计时：开始
     start = time.time()
     # 初始化，使用productId
-    productSelenium = ProductSelenium(143)
+    # 祈雨舞-157 Day1-44 不信谣-106 双子座-98
+    # 看一下黄的寄售时间 比较黄和绿
+    productSelenium = ProductSelenium(71)
     productSelenium.complete_steps_of_get_product()
     # 计时：结束
     end = time.time()
