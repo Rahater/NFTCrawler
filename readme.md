@@ -34,7 +34,9 @@
 6. 解决藏品寄售但数量为0的情况
 在进行第一步的时候进行数量判断再确定是否进行后续数据爬取阶段
 7. 解决product_basic表的重复插入问题
-设置productId为Unique，使用replace 解决
+设置productId为Unique，再使用replace解决
+8. 设置定时任务爬取数据
+使用flask_apscheduler进行解决
 ### 备注
 * 表格属性：序号 藏品名称 藏品编号 寄售价格 购入价格 波动 持有者昵称 卖家昵称 交易时间 转手次数 流通量 发行量寄售时间
 ### Tips

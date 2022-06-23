@@ -7,7 +7,7 @@ class Config(object):
             'id': 'job-1',
             'func': 'flaskScheduler:product_basic_scheduler',
             'trigger': 'interval',
-            'seconds': 1
+            'seconds': 24*3600
         }
     ]
     SCHEDULER_API_ENABLED = True
@@ -15,6 +15,4 @@ class Config(object):
 
 # 定时任务 product_basic
 def product_basic_scheduler():
-    # 执行爬虫
-    # AllProduct().get_all_product_basic()
-    print('123')
+    AllProduct().get_all_product_basic()

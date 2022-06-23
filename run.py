@@ -1,9 +1,5 @@
-import datetime
-
 from flask import Flask, redirect, url_for, render_template
-
 from flaskScheduler import Config
-from table.tableProductBasic import *
 from crawler.productBasicSelenium import *
 from flask_apscheduler import APScheduler
 
