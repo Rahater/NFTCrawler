@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ProductBasic</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<!--head-->
+<div class="container-head">
+    <div class="row">
+        <h2 class="text-center bg-primary text-white">42Verse平台所有藏品基础数据展示</h2>
+    </div>
+</div>
+<!--    content-->
+<div class="container-content">
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>作者ID</th>
+                    <th>作者姓名</th>
+                    <th>藏品ID</th>
+                    <th>藏品名称</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for product_basic in product_basic_list %}
+                <tr>
+                    <td>{{product_basic['id']}}</td>
+                    <td>{{product_basic['creatorId']}}</td>
+                    <td>{{product_basic['creatorName']}}</td>
+                    <td>{{product_basic['productId']}}</td>
+                    <td>{{product_basic['productName']}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

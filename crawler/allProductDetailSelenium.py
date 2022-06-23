@@ -1,6 +1,6 @@
-import allProduct
+import productBasicSelenium
 
-import productSelenium
+import productDetailSelenium
 
 
 class AllProductSelenium:

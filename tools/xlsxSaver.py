@@ -1,4 +1,6 @@
 # -*- coding:utf8 -*-
+import datetime
+
 import pandas as pd
 from openpyxl.styles import Alignment, Border, Side, numbers
 from openpyxl.styles import PatternFill
@@ -242,7 +244,6 @@ def set_style_of_excel(product_list, file_name, product_name):
     columns = ['藏品名称', '藏品编号', '购入价格', '寄售价格', '购入时间', '寄售时间', '涨幅', '转手次数', '持有者昵称',
                '卖家昵称', '流通量', '发行量']
     df = df[columns]
-
     # 初始化一个对象, 设定保存后的文件名和表名
     xlsx = XlsxSaver(columns, df, file_name, product_name + '-数据分析')
     # 传参：波动率的列名
