@@ -583,7 +583,7 @@ if __name__ == '__main__':
     # 计时：开始
     start = time.time()
     # 祈雨舞-157 Day1-44 不信谣-106 少女绿-71 少女蓝-86
-    productSelenium = ProductSelenium(168)
+    productSelenium = ProductSelenium(59)
     productSelenium.complete_steps_of_get_product()
     # 计时：结束
     end = time.time()
