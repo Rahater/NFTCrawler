@@ -97,30 +97,43 @@ class ProductPriceMonitor:
         product_list = data_json['data']['list']
         # 用于判断藏品是否存在寄售，不存在寄售返回False
         if len(product_list) == 0:
-            return -1,-1,-1
+            return -1, -1, -1
         # 获取当前最低价与次低价格
         return product_list[0]['salePrice'], product_list[1]['salePrice'], product_list[0]['shardId']
 
     # 单个藏品指定价格监控
-    def product_loop_monitor(self, product_id, product_goal_price):
+    def product_loop_monitor(self, product_id, product_goal_price, goal_fluctuate):
         self.get_all_product_basic()
         first_product_price, second_product_price, first_product_shard_id = self.get_product_price(product_id)
         if first_product_price == -1:
             return '藏品无寄售'
         else:
-            while float(first_product_price) >= product_goal_price:
-                print(float(first_product_price))
+            while float(first_product_price) > product_goal_price and float(
+                    float(second_product_price) - float(first_product_price)) / float(
+                first_product_price) < goal_fluctuate:
+                print(first_product_price, second_product_price, str(round(float(
+                        float(second_product_price) - float(first_product_price)) / float(
+                        first_product_price), 2)))
+                # 满足其中一个条件时，进行公众号消息推送
+                if float(first_product_price) <= product_goal_price or float(
+                        float(second_product_price) - float(first_product_price)) / float(
+                    first_product_price) >= goal_fluctuate:
+                    title = str(product_id) + "-" + str(
+                        first_product_price) + "-" + str(second_product_price) + "-" + str(round(float(
+                        float(second_product_price) - float(first_product_price)) / float(
+                        first_product_price), 2))
+                    desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
+                        shard_id=first_product_shard_id, product_id=product_id)
+                    url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
+                        title=title, desp=desp)
+                    requests.get(url)
                 # 价格高于目标价格 睡眠一分钟后再执行函数
-                time.sleep(60)
-                first_product_price = self.get_product_price()
+                time.sleep(3)
+                first_product_price, second_product_price, first_product_shard_id = self.get_product_price(product_id)
             self.driver.quit()
-            # 价格低于目标价格时，进行公众号消息推送
-            requests.get(
-                "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text=" + str(product_id) + "最新价格是" + str(
-                    first_product_price) + "&desp=Go!")
 
     # 所有藏品监控，以最低两个藏品价格差距作为判断条件,fluctuate是波动
-    def all_product_loop_monitor(self,goal_fluctuate):
+    def all_product_loop_monitor(self, goal_fluctuate):
         self.get_all_product_basic()
         while True:
             for product in self.product_basic_list:
@@ -149,5 +162,5 @@ class ProductPriceMonitor:
 
 if __name__ == '__main__':
     productPriceMonitor = ProductPriceMonitor()
-    # productPriceMonitor.product_loop_monitor(59,1750)
-    productPriceMonitor.all_product_loop_monitor(0.28)
+    productPriceMonitor.product_loop_monitor(59, 1750, 0.10)
+    # productPriceMonitor.all_product_loop_monitor(0.28)
