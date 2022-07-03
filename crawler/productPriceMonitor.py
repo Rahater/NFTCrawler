@@ -128,7 +128,7 @@ class ProductPriceMonitor:
                     product['productId'])
                 if first_product_price == -1:
                     print("藏品无寄售")
-                    break
+                    continue
                 fluctuate = round(
                     float(float(second_product_price) - float(first_product_price)) / float(first_product_price), 2)
                 if fluctuate >= 0.20:
@@ -142,12 +142,12 @@ class ProductPriceMonitor:
                 print(str(product['productName']), first_product_price, second_product_price,
                       float(float(second_product_price) - float(first_product_price)) / float(first_product_price),
                       fluctuate)
-                time.sleep(1)
+            time.sleep(60)
+            print("新一轮循环")
         self.driver.quit()
 
 
 if __name__ == '__main__':
     productPriceMonitor = ProductPriceMonitor()
     # productPriceMonitor.product_loop_monitor(59,1750)
-
-    productPriceMonitor.all_product_loop_monitor(0.2)
+    productPriceMonitor.all_product_loop_monitor(0.17)
