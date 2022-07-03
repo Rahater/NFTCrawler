@@ -101,6 +101,41 @@ class ProductPriceMonitor:
         # 获取当前最低价与次低价格
         return product_list[0]['salePrice'], product_list[1]['salePrice'], product_list[0]['shardId']
 
+        # 获取单个藏品的最低价与次低价格
+
+    def get_product_price_with_activeCount(self, product_id):
+        # 最大化窗口
+        try:
+            self.driver.maximize_window()
+        except:
+            print('max exception')
+            pass
+        finally:
+            pass
+        # 注入js代码
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+                        Object.defineProperty(navigator, 'webdriver', {
+                          get: () => True
+                        })
+                      """
+        })
+        # 生成藏品url
+        product_url = "https://api.42verse.shop/api/front/sale/hangingAndShardList?limit=20&selectType=1&page=1&productId=" + str(
+            product_id)
+        # 模拟浏览
+        perfect_driver_get(self.driver, product_url)
+        # 解析页面数据
+        data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+        data_json = json.loads(data_str)
+        product_list = data_json['data']['list']
+        # 用于判断藏品是否存在寄售，不存在寄售返回False
+        if len(product_list) == 0:
+            return -1, -1, -1,-1
+        # 获取当前最低价与次低价格
+        return product_list[0]['salePrice'], product_list[1]['salePrice'], product_list[0]['shardId'], \
+               data_json['data']['total']
+
     # 单个藏品指定价格监控
     def product_loop_monitor(self, product_id, product_goal_price, goal_fluctuate):
         self.get_all_product_basic()
@@ -128,10 +163,12 @@ class ProductPriceMonitor:
                         title=title, desp=desp)
                     requests.get(url)
                 # 价格高于目标价格 睡眠一分钟后再执行函数
-                time.sleep(30)
+                print('sleep 90s')
+                time.sleep(90)
                 first_product_price, second_product_price, first_product_shard_id = self.get_product_price(product_id)
             self.driver.quit()
 
+    # 指定多个藏品监控
     def multi_product_loop_monitor(self, goal_fluctuate, goal_product_list):
         self.get_all_product_basic()
         while True:
@@ -164,14 +201,14 @@ class ProductPriceMonitor:
         self.get_all_product_basic()
         while True:
             for product in self.product_basic_list:
-                first_product_price, second_product_price, first_product_shard_id = self.get_product_price(
+                first_product_price, second_product_price, first_product_shard_id, activeCount = self.get_product_price_with_activeCount(
                     product['productId'])
                 if first_product_price == -1:
                     print("藏品无寄售")
                     continue
                 fluctuate = round(
                     float(float(second_product_price) - float(first_product_price)) / float(first_product_price), 2)
-                if fluctuate >= goal_fluctuate:
+                if fluctuate >= goal_fluctuate and float(first_product_price) < 2200 and int(activeCount) < 1000:
                     title = str(product['productName']) + "-" + str(
                         first_product_price) + "-" + str(second_product_price) + "-" + str(fluctuate)
                     desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
@@ -190,6 +227,6 @@ class ProductPriceMonitor:
 if __name__ == '__main__':
     productPriceMonitor = ProductPriceMonitor()
     # productPriceMonitor.product_loop_monitor(59, 1750, 0.10)
-    goal_product_list = [59, 130, 150, 175]
-    # productPriceMonitor.all_product_loop_monitor(0.28)
-    productPriceMonitor.multi_product_loop_monitor(0.10, goal_product_list)
+    productPriceMonitor.all_product_loop_monitor(0.08)
+    # goal_product_list = [59, 130, 150, 175]
+    # productPriceMonitor.multi_product_loop_monitor(0.08, goal_product_list)
