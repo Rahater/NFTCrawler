@@ -120,7 +120,7 @@ class ProductPriceMonitor:
                     first_product_price) + "&desp=Go!")
 
     # 所有藏品监控，以最低两个藏品价格差距作为判断条件,fluctuate是波动
-    def all_product_loop_monitor(self,fluctuate):
+    def all_product_loop_monitor(self,goal_fluctuate):
         self.get_all_product_basic()
         while True:
             for product in self.product_basic_list:
@@ -131,7 +131,7 @@ class ProductPriceMonitor:
                     continue
                 fluctuate = round(
                     float(float(second_product_price) - float(first_product_price)) / float(first_product_price), 2)
-                if fluctuate >= 0.20:
+                if fluctuate >= goal_fluctuate:
                     title = str(product['productName']) + "-" + str(
                         first_product_price) + "-" + str(second_product_price) + "-" + str(fluctuate)
                     desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
@@ -150,4 +150,4 @@ class ProductPriceMonitor:
 if __name__ == '__main__':
     productPriceMonitor = ProductPriceMonitor()
     # productPriceMonitor.product_loop_monitor(59,1750)
-    productPriceMonitor.all_product_loop_monitor(0.17)
+    productPriceMonitor.all_product_loop_monitor(0.28)
