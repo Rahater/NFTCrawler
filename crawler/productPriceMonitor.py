@@ -219,8 +219,8 @@ class ProductPriceMonitor:
                 print(str(product['productName']), first_product_price, second_product_price,
                       float(float(second_product_price) - float(first_product_price)) / float(first_product_price),
                       fluctuate)
-            time.sleep(60)
-            print("新一轮循环")
+            print("sleep 90s")
+            time.sleep(90)
         self.driver.quit()
 
 
