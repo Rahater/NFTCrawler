@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from tools.slidingValidationSolver import perfect_driver_get
-from tools.xlsxSaver import set_style_of_excel
+import requests
 
 '''
     介绍
@@ -41,6 +41,9 @@ class ProductPriceMonitor:
         # 最大化窗口
         try:
             self.driver.maximize_window()
+        except:
+            print('max exception')
+            pass
         finally:
             pass
         # 注入js代码
@@ -65,9 +68,28 @@ class ProductPriceMonitor:
             return False
         # 存在时判断价格是否低于目标价格
         # 获取当前最低价格
-        print(product_list[0]['salePrice'])
+        return product_list[0]['salePrice']
+        # self.driver.quit()
+
+    def loop_monitor(self):
+        flag = self.get_product_price()
+        if flag is False:
+
+            return '藏品无寄售'
+        else:
+            while float(flag) >= self.product_goal_price:
+                print(float(flag))
+                # 价格高于目标价格 睡眠一分钟后再执行函数
+                time.sleep(60)
+                flag = self.get_product_price()
+            self.driver.quit()
+            # 价格低于目标价格时，进行公众号消息推送
+            requests.get(
+                "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text=" + str(self.product_id) + "最新价格是" + str(
+                    flag) + "&desp=Go!")
+
 
 
 if __name__ == '__main__':
-    productPriceMonitor=ProductPriceMonitor(59,2000)
-    productPriceMonitor.get_product_price()
+    productPriceMonitor = ProductPriceMonitor(59, 1800)
+    productPriceMonitor.loop_monitor()
