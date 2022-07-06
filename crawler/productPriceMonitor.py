@@ -1,10 +1,13 @@
 # coding=utf-8
+import datetime
 import json
 import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+
+from tools.purchaseSolver import ProductSolver
 from tools.slidingValidationSolver import perfect_driver_get
 import requests
 
@@ -107,30 +110,46 @@ class ProductPriceMonitor:
         if first_product_price == -1:
             return '藏品无寄售'
         else:
-            while float(first_product_price) > product_goal_price and float(
+            # 判断当前状态虾是否符合要求，满足其中一个条件时，进行公众号消息推送
+            if float(first_product_price) <= product_goal_price or float(
                     float(second_product_price) - float(first_product_price)) / float(
-                first_product_price) < goal_fluctuate:
-                print(first_product_price, second_product_price, str(round(float(
+                first_product_price) >= goal_fluctuate:
+                title = str(product_id) + "-" + str(
+                    first_product_price) + "-" + str(second_product_price) + "-" + str(round(float(
                     float(second_product_price) - float(first_product_price)) / float(
-                    first_product_price), 2)))
-                # 满足其中一个条件时，进行公众号消息推送
-                if float(first_product_price) <= product_goal_price or float(
+                    first_product_price), 2))
+                desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
+                    shard_id=first_product_shard_id, product_id=product_id)
+                url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
+                    title=title, desp=desp)
+                requests.get(url)
+                print(title, desp)
+                self.driver.quit()
+            else:
+                while float(first_product_price) > product_goal_price and float(
                         float(second_product_price) - float(first_product_price)) / float(
-                    first_product_price) >= goal_fluctuate:
-                    title = str(product_id) + "-" + str(
-                        first_product_price) + "-" + str(second_product_price) + "-" + str(round(float(
+                    first_product_price) < goal_fluctuate:
+                    print(first_product_price, second_product_price, str(round(float(
                         float(second_product_price) - float(first_product_price)) / float(
-                        first_product_price), 2))
-                    desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
-                        shard_id=first_product_shard_id, product_id=product_id)
-                    url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
-                        title=title, desp=desp)
-                    requests.get(url)
-                # 价格高于目标价格 睡眠一分钟后再执行函数
-                print('sleep 10s')
-                time.sleep(10)
-                first_product_price, second_product_price, first_product_shard_id = self.get_product_price(product_id)
-            self.driver.quit()
+                        first_product_price), 2)))
+                    # 满足其中一个条件时，进行公众号消息推送
+                    if float(first_product_price) <= product_goal_price or float(
+                            float(second_product_price) - float(first_product_price)) / float(
+                        first_product_price) >= goal_fluctuate:
+                        title = str(product_id) + "-" + str(
+                            first_product_price) + "-" + str(second_product_price) + "-" + str(round(float(
+                            float(second_product_price) - float(first_product_price)) / float(
+                            first_product_price), 2))
+                        desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
+                            shard_id=first_product_shard_id, product_id=product_id)
+                        url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
+                            title=title, desp=desp)
+                        requests.get(url)
+                        print(title, desp)
+                    # 价格高于目标价格 睡眠一分钟后再执行函数
+                    print('sleep 10s')
+                    time.sleep(10)
+                self.driver.quit()
 
     # 指定多个藏品波动监控
     def multi_product_loop_monitor(self, goal_fluctuate, goal_product_list):
@@ -156,12 +175,12 @@ class ProductPriceMonitor:
                     print(str(product['productName']), first_product_price, second_product_price,
                           float(float(second_product_price) - float(first_product_price)) / float(first_product_price),
                           fluctuate)
-            time.sleep(30)
+            time.sleep(10)
             print("新一轮循环")
         self.driver.quit()
 
     # 所有藏品波动监控
-    def all_product_loop_monitor(self, goal_fluctuate):
+    def all_product_loop_monitor(self, goal_fluctuate, goal_price, goal_active_count):
         self.get_all_product_basic()
         while True:
             for product in self.product_basic_list:
@@ -172,7 +191,7 @@ class ProductPriceMonitor:
                     continue
                 fluctuate = round(
                     float(float(second_product_price) - float(first_product_price)) / float(first_product_price), 2)
-                if fluctuate >= goal_fluctuate and float(first_product_price) < 10000:
+                if fluctuate >= goal_fluctuate and float(first_product_price) < goal_price:
                     # 获取流通量
                     active_count_url = "https://api.42verse.shop/api/front/product/shard/detail?shardId={shard_id}&productId={product_id}".format(
                         shard_id=first_product_shard_id, product_id=product['productId'])
@@ -186,11 +205,21 @@ class ProductPriceMonitor:
                         first_product_price) + "-" + str(second_product_price) + "-" + str(fluctuate)
                     desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
                         shard_id=first_product_shard_id, product_id=product['productId'])
-                    if int(active_count) > 1000:
+                    if int(active_count) > goal_active_count:
                         url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
                             title=title, desp=desp)
                         requests.get(url)
-                        print(desp)
+                        # 抢购
+                        start = time.time()
+                        purchase_solver = ProductSolver(desp)
+                        purchase_solver.purchase_lowest_product()
+                        end = time.time()
+                        print(end - start)
+                        print(product['productName'], product['productId'], first_product_price, second_product_price,
+                              float(float(second_product_price) - float(first_product_price)) / float(
+                                  first_product_price),
+                              fluctuate, active_count, desp)
+                        return "success"
                     print(product['productName'], product['productId'], first_product_price, second_product_price,
                           float(float(second_product_price) - float(first_product_price)) / float(first_product_price),
                           fluctuate, active_count, desp)
@@ -199,11 +228,88 @@ class ProductPriceMonitor:
             time.sleep(60)
         self.driver.quit()
 
+    # 所有藏品波动监控 价格低于100
+    def all_product_loop_monitor_100(self, goal_price):
+        # 最大化窗口
+        try:
+            self.driver.maximize_window()
+        except:
+            print('max exception')
+            pass
+        finally:
+            pass
+        # 注入js代码
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+                                        Object.defineProperty(navigator, 'webdriver', {
+                                          get: () => True
+                                        })
+                                      """
+        })
+        # while True:
+        #     # 生成藏品url
+        #     product_url = "https://api.42verse.shop/api/front/sale/list"
+        #     # 模拟浏览
+        #     perfect_driver_get(self.driver, product_url)
+        #     # 解析页面数据
+        #     data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+        #     data_json = json.loads(data_str)
+        #     product_list = data_json['data']['list']
+        #     for product in product_list:
+        #         if float(product['salePrice']) <= 263:
+        #             print(product['productId'], product['salePrice'])
+        #         if float(product['salePrice']) <= goal_price:
+        #             title = str(product['productId']) + "-" + str(product['salePrice'])
+        #             desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
+        #                 shard_id=product['shardId'], product_id=product['productId'])
+        #             url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
+        #                 title=title, desp=desp)
+        #             requests.get(url)
+        #             # 抢购
+        #             start = time.time()
+        #             purchase_solver = ProductSolver(desp)
+        #             purchase_solver.purchase_lowest_product()
+        #             end = time.time()
+        #             print(end - start)
+        #             self.driver.quit()
+        #             break
+        #     time.sleep(1)
+        #     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        while True:
+            # 生成藏品url
+            product_url = "https://api.42verse.shop/api/front/sale/list?creatorId=&productId=&lastSalePrice=&orderSort=asc&saleType=0&lastId="
+            # 模拟浏览
+            perfect_driver_get(self.driver, product_url)
+            # 解析页面数据
+            data_str = self.driver.find_element(By.TAG_NAME, 'pre').text
+            data_json = json.loads(data_str)
+            product_list = data_json['data']['list']
+            if float(product_list[0]['salePrice']) <= 250:
+                print(product_list[0]['productId'], product_list[0]['salePrice'])
+                if float(product_list[0]['salePrice']) <= goal_price:
+                    title = str(product_list[0]['productId']) + "-" + str(product_list[0]['salePrice'])
+                    desp = "https://www.42verse.shop/product/shared/{shard_id}?productId={product_id}&marketType=0".format(
+                        shard_id=product_list[0]['shardId'], product_id=product_list[0]['productId'])
+                    url = "http://wx.xtuis.cn/WposFNHMIgv1hkjkoa2awaEGx.send?text={title}&&desp={desp}".format(
+                        title=title, desp=desp)
+                    requests.get(url)
+                    # 抢购
+                    start = time.time()
+                    purchase_solver = ProductSolver(desp)
+                    purchase_solver.purchase_lowest_product()
+                    end = time.time()
+                    print(end - start)
+                    self.driver.quit()
+                    time.sleep(600)
+            time.sleep(1)
+            print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
 
 if __name__ == '__main__':
     productPriceMonitor = ProductPriceMonitor()
     # productPriceMonitor.product_loop_monitor(151, 4100, 0.08)
-    # productPriceMonitor.product_loop_monitor(59, 1800, 0.08)
-    productPriceMonitor.all_product_loop_monitor(0.081)
-    # goal_product_list = [59, 130, 150, 175]
+    # productPriceMonitor.product_loop_monitor(59, 1710, 0.08)
+    # productPriceMonitor.all_product_loop_monitor_100(103)
+    productPriceMonitor.all_product_loop_monitor(0.08, 600, 200)
+    # goal_product_list = [59, 225]
     # productPriceMonitor.multi_product_loop_monitor(0.08, goal_product_list)
