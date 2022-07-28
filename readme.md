@@ -1,7 +1,6 @@
 ## 开发文档
 ### 需求
-1. 项目使用Redis作为数据解决方案；
-2. 查询百度超级链获取接口&抢购科技的资料；
+
 3. 获取所有藏品的每日价格图（20个）并展示到前端
 4. 代理更换
 5. https://api.42verse.shop/api/front/sale/list 获取指定时间内交易的藏品数据
@@ -36,6 +35,7 @@
 设置productId为Unique，再使用replace解决
 8. 设置定时任务爬取数据
 使用flask_apscheduler进行解决
+9. 次低价-最低价/最低价 波动为7.4% 应该是次低价-最低价/次低价 波动为8%
 ### Tips
 1. 浏览器重定向路径：chrome://settings/content/popups
 2. 隧道代理：阿布云，迅代理，蚂蚁，微秒云

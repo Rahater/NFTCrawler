@@ -262,6 +262,8 @@ class ProductPriceMonitor:
         try:
             while True:
                 # 生成藏品url
+                # https://api.42verse.shop/api/front/sale/list?creatorId=26&productId=&lastSalePrice=&orderSort=asc&saleType=0&lastId=
+                # https://api.42verse.shop/api/front/sale/list?creatorId=&productId=&lastSalePrice=&orderSort=asc&saleType=0&lastId=
                 product_url = "https://api.42verse.shop/api/front/sale/list?creatorId=26&productId=&lastSalePrice=&orderSort=asc&saleType=0&lastId="
                 # 模拟浏览
                 perfect_driver_get(self.driver, product_url)
@@ -278,11 +280,14 @@ class ProductPriceMonitor:
                         title=title, desp=desp)
                     # 抢购
                     purchase_solver = ProductSolver(desp)
-                    purchase_solver.purchase_lowest_product()
-                    # 公众号消息推送
-                    requests.get(url)
-                    print("程序锁单成功，即将睡眠180s")
-                    time.sleep(60)
+                    flag=purchase_solver.purchase_lowest_product()
+                    if flag != "已被其他人锁定":
+                        # 公众号消息推送
+                        requests.get(url)
+                        print("程序锁单成功，即将睡眠60s")
+                        time.sleep(30)
+                    else:
+                        print("已被其他人锁定，继续执行程序")
                 time.sleep(loop_time)
                 print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         except:
@@ -293,11 +298,12 @@ class ProductPriceMonitor:
 if __name__ == '__main__':
     productPriceMonitor = ProductPriceMonitor()
     # 单个藏品监控，指定价格/差价比（次低价-最低价/次低价）；参数：藏品ID、目标锁单价格、锁单差价比、循环时间间隔
-    # productPriceMonitor.single_product_loop_monitor(158, 1000, 0.08, 1)
+    productPriceMonitor.single_product_loop_monitor(175, 2700, 0.08, 1)
     # 42Verse全平台藏品监控，指定差价比/余额/流通量；参数：锁单差价比、余额、流通量、循环时间间隔
     # productPriceMonitor.all_product_loop_monitor(0.06, 900, 1000, 0.8)
     # 42Verse全平台藏品最低价监控，指定价格进行锁单；参数：藏品最低价 抄底用
-    # productPriceMonitor.all_product_loop_monitor_balance(1700, 0.8)
+    # productPriceMonitor.all_product_loop_monitor_balance(1500, 0.3)
     # 42Verse多个藏品监控，指定差价比/藏品ID列表；参数：锁单差价比、藏品ID列表
-    goal_product_list = [79, 80, 81, 82, 83, 84]
-    productPriceMonitor.multi_product_loop_monitor_fluctuate(0.08, goal_product_list, 1)
+    # goal_product_list = [79, 80, 81, 82, 83, 84]
+    # productPriceMonitor.multi_product_loop_monitor_fluctuate(0.08, goal_product_list, 1)
+

@@ -53,7 +53,7 @@ class AllProduct:
             for product_item in creator_item['productList']:
                 product_basic = {'creatorId': creator_item['creatorId'], 'creatorName': creator_item['creatorName'],
                                  'productId': product_item['productId'], 'productName': product_item['productName']}
-                # print(product_basic)
+                print(product_basic)
                 self.product_basic_list.append(product_basic)
         self.driver.quit()
         insert_product_basic(self.product_basic_list)

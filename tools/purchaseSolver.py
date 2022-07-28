@@ -1,30 +1,20 @@
 import json
 import subprocess
+import sys
 import time
 
 from selenium import webdriver
-from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from tools.slidingValidationSolver import perfect_driver_get
-
-'''
- 1. 打开cmd 打开指定端口、文件夹的独立浏览器
- 示例：chrome.exe --remote-debugging-port=8100 --user-data-dir="C:\42verse\Chrome-data-42verse"
- 2. 使用ctrl+R刷新页面1次，滑动页面即可生成cookie(暂时不考虑保存cookie以进行脚本访问)
- 3. 用于访问页面
- https://www.42verse.shop/product/shared/136?productId=142&marketType=0
-'''
-
 
 class ProductSolver:
     def __init__(self, product_url):
-        # 打开cmd执行命令
-        # command = 'chrome.exe --remote-debugging-port=8100 --user-data-dir=\"C:\\42verse\\\Chrome-data-42verse\"'
+        # 打开cmd执行命令 chrome.exe --remote-debugging-port=8100 --user-data-dir="C:\\42verse\\Chrome-data-42verse"
+        command = 'chrome.exe --remote-debugging-port=8100 --user-data-dir=\"C:\\42verse\\Chrome-data-42verse\"'
         # subprocess.Popen(command)
         # 配置路径
         self.driver_path = r"C:\Program Files\Google\Chrome\Application\chromedriver.exe"
@@ -60,28 +50,32 @@ class ProductSolver:
                     EC.presence_of_element_located((By.CSS_SELECTOR, "[class='button sale']"))
                 )
             except:
+                print("藏品已被锁定1")
                 self.driver.quit()
-            finally:
-                draggier = self.driver.find_element(by=By.CSS_SELECTOR, value="[class='button sale']")
-                action_chains = ActionChains(self.driver)
-                action_chains.click(draggier).perform()
-                action_chains.click(draggier).perform()
-                try:
-                    element1 = WebDriverWait(self.driver, 3).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "[class='icon nc-iconfont icon-slide-arrow']"))
-                    )
-                except:
-                    self.driver.quit()
-                finally:
-                    draggier1 = self.driver.find_element(by=By.CSS_SELECTOR,
-                                                         value="[class='icon nc-iconfont icon-slide-arrow']")
+                return "已被其他人锁定"
+            draggier = self.driver.find_element(by=By.CSS_SELECTOR, value="[class='button sale']")
+            action_chains = ActionChains(self.driver)
+            action_chains.click(draggier).perform()
+            action_chains.click(draggier).perform()
+            try:
+                element1 = WebDriverWait(self.driver, 2).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "[class='icon nc-iconfont icon-slide-arrow']"))
+                )
+                draggier1 = self.driver.find_element(by=By.CSS_SELECTOR,
+                                                     value="[class='icon nc-iconfont icon-slide-arrow']")
                 action_chains.click_and_hold(draggier1).perform()
                 action_chains.drag_and_drop_by_offset(draggier1, 1680, 0).perform()
-                # self.driver.quit()
+                self.driver.quit()
+            except:
+                print("藏品已被锁定2")
+                self.driver.quit()
+                return "已被其他人锁定"
         except:
-            print("Purchase Fail")
+            print("锁单失败")
             self.driver.quit()
+            return "已被其他人锁定"
+
 
 if __name__ == '__main__':
-    productSolver = ProductSolver("https://www.42verse.shop/product/shared/2776?productId=47&marketType=0")
+    productSolver = ProductSolver("https://www.42verse.shop/product/shared/1489?productId=153&marketType=0")
     productSolver.purchase_lowest_product()

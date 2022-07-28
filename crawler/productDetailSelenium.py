@@ -10,9 +10,7 @@ from tools.xlsxSaver import set_style_of_excel
 
 '''
     介绍
-        实现对单一藏品的数据监控，生成Excel表格，表格包含一下数据：序号 藏品名称 藏品编号 寄售价格 寄售时间 购入价格 涨幅 持有者昵称 卖家昵称 购入时间 转手次数 流通量 发行量
-    使用流程
-        设置谷歌浏览器的环境变量-设置目标浏览器的重定向
+        实现对单一藏品的数据监控
     相关接口
      1. 最新上架链接：https://api.42verse.shop/api/front/sale/list?creatorId=35&productId=142&saleType=0 可获取寄售时间
      2. 价格升序链接：https://api.42verse.shop/api/front/sale/hangingAndShardList?selectType=1&productId=142 可获取寄售总数
